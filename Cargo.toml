@@ -1,0 +1,16 @@
+[package]
+name = "rocket-accept-language"
+version = "0.1.0"
+authors = ["Magic Len <len@magiclen.org>"]
+repository = "https://github.com/magiclen/rocket-accept-language"
+homepage = "https://magiclen.org/rocket-accept-language"
+keywords = ["rocket", "server", "web", "i18n", "http"]
+categories = ["parsing", "localization"]
+description= "This crate provides a request guard used for getting `accept-language` header."
+readme = "README.md"
+license = "MIT"
+
+[dependencies]
+rocket = "0.3.15"
+accept-language = "1.2.0"
+fluent-locale = "0.4.1"
