@@ -16,6 +16,7 @@ use rocket::Outcome;
 use rocket::request::{self, Request, FromRequest};
 
 /// The request guard used for getting `accept-language` header.
+#[derive(Debug, Clone)]
 pub struct AcceptLanguage {
     pub accept_language: Vec<Locale>,
 }
