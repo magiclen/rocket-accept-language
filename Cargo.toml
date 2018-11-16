@@ -1,6 +1,6 @@
 [package]
 name = "rocket-accept-language"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Magic Len <len@magiclen.org>"]
 repository = "https://github.com/magiclen/rocket-accept-language"
 homepage = "https://magiclen.org/rocket-accept-language"
@@ -10,7 +10,13 @@ description= "This crate provides a request guard used for getting `accept-langu
 readme = "README.md"
 license = "MIT"
 
+[badges]
+travis-ci = { repository = "magiclen/rocket-accept-language", branch = "master" }
+
 [dependencies]
-rocket = "0.3.15"
-accept-language = "1.2.0"
+rocket = ">=0.3.16"
+accept-language = "1.2.1"
 fluent-locale = "0.4.1"
+
+[dev-dependencies]
+rocket_codegen = ">=0.3.16"
