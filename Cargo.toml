@@ -1,6 +1,6 @@
 [package]
 name = "rocket-accept-language"
-version = "0.2.2"
+version = "0.2.3"
 authors = ["Magic Len <len@magiclen.org>"]
 repository = "https://github.com/magiclen/rocket-accept-language"
 homepage = "https://magiclen.org/rocket-accept-language"

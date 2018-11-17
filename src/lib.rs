@@ -6,8 +6,8 @@ This crate provides a request guard used for getting `accept-language` header.
 See `examples`.
 */
 
+pub extern crate rocket;
 extern crate accept_language;
-extern crate rocket;
 extern crate fluent_locale;
 
 pub use fluent_locale::Locale;
