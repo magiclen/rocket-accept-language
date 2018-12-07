@@ -1,6 +1,6 @@
 [package]
 name = "rocket-accept-language"
-version = "0.2.4"
+version = "0.3.0"
 authors = ["Magic Len <len@magiclen.org>"]
 repository = "https://github.com/magiclen/rocket-accept-language"
 homepage = "https://magiclen.org/rocket-accept-language"
@@ -14,9 +14,6 @@ license = "MIT"
 travis-ci = { repository = "magiclen/rocket-accept-language", branch = "master" }
 
 [dependencies]
-rocket = ">=0.3.16"
+rocket = "0.4"
 accept-language = "1.2.1"
 fluent-locale = "0.4.1"
-
-[dev-dependencies]
-rocket_codegen = ">=0.3.16"
