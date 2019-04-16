@@ -1,11 +1,11 @@
 [package]
 name = "rocket-accept-language"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["Magic Len <len@magiclen.org>"]
 repository = "https://github.com/magiclen/rocket-accept-language"
 homepage = "https://magiclen.org/rocket-accept-language"
 keywords = ["rocket", "server", "web", "i18n", "http"]
-categories = ["parsing", "localization", "web-programming"]
+categories = ["parser-implementations", "localization", "web-programming"]
 description= "This crate provides a request guard used for getting `accept-language` header."
 readme = "README.md"
 license = "MIT"
@@ -15,5 +15,5 @@ travis-ci = { repository = "magiclen/rocket-accept-language", branch = "master" 
 
 [dependencies]
 rocket = "0.4"
-accept-language = "1.2.1"
+accept-language = "2.0.0"
 fluent-locale = "0.4.1"
