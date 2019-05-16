@@ -21,26 +21,42 @@ pub struct AcceptLanguage {
     pub accept_language: Vec<Locale>,
 }
 
+macro_rules! impl_request_guard {
+    ($request:ident) => {
+        {
+            let raw_accept_language: Option<&str> = $request.headers().get("accept-language").next(); // Only fetch the first one.
+
+            match raw_accept_language {
+                Some(raw_accept_language) => {
+                    let accept_language_split = accept_language::parse(raw_accept_language);
+
+                    let accept_language = accept_language_split.iter().filter_map(|al| Locale::new(al, None).ok()).collect();
+
+                    AcceptLanguage {
+                        accept_language
+                    }
+                }
+                None => AcceptLanguage {
+                    accept_language: Vec::new()
+                }
+            }
+        }
+    }
+}
+
 impl<'a, 'r> FromRequest<'a, 'r> for AcceptLanguage {
     type Error = ();
 
     fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
-        let raw_accept_language: Option<&str> = request.headers().get("accept-language").next(); // Only fetch the first one.
+        Outcome::Success(impl_request_guard!(request))
+    }
+}
 
-        match raw_accept_language {
-            Some(raw_accept_language) => {
-                let accept_language_split = accept_language::parse(raw_accept_language);
+impl<'a, 'r> FromRequest<'a, 'r> for &'a AcceptLanguage {
+    type Error = ();
 
-                let accept_language = accept_language_split.iter().filter_map(|al| Locale::new(al, None).ok()).collect();
-
-                Outcome::Success(AcceptLanguage {
-                    accept_language
-                })
-            }
-            None => Outcome::Success(AcceptLanguage {
-                accept_language: Vec::new()
-            })
-        }
+    fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
+        Outcome::Success(request.local_cache(|| impl_request_guard!(request)))
     }
 }
 
