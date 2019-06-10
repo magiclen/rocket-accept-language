@@ -35,7 +35,7 @@ fn hello(accept_language: &AcceptLanguage, support_languages: State<SupportLangu
 
 fn main() {
     let support_languages = SupportLanguages {
-        locales: vec![Locale::new("zh_TW", None).unwrap(), Locale::new("zh_CN", None).unwrap(), Locale::new("jp", None).unwrap()]
+        locales: vec![Locale::new("zh_TW", None).unwrap(), Locale::new("zh_CN", None).unwrap(), Locale::new("jp", None).unwrap(), Locale::new("en", None).unwrap()]
     };
 
     rocket::ignite()
