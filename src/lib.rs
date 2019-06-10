@@ -7,8 +7,8 @@ See `examples`.
 */
 
 pub extern crate rocket;
+pub extern crate fluent_locale;
 extern crate accept_language;
-extern crate fluent_locale;
 
 pub use fluent_locale::Locale;
 
@@ -76,15 +76,7 @@ impl AcceptLanguage {
 
     /// Get the first language. For example, a language can be `"en"`, `"zh"` or `"jp"`.
     pub fn get_first_language(&self) -> Option<&str> {
-        for locale in &self.accept_language {
-            let language = locale.get_language();
-
-            if !language.is_empty() {
-                return Some(language);
-            }
-        }
-
-        None
+        self.accept_language.iter().next().map(|locale| locale.get_language())
     }
 
     /// Get the first language-region pair. The region might not exist. For example, a language-region pair can be `("en", Some("US"))`, `("en", Some("GB"))`, `("zh", Some("TW"))` or `("zh", None)`.
@@ -92,17 +84,47 @@ impl AcceptLanguage {
         for locale in &self.accept_language {
             let language = locale.get_language();
 
-            if !language.is_empty() {
-                let region = locale.get_region();
+            let region = locale.get_region();
 
-                if region.is_empty() {
-                    return Some((language, None));
-                } else {
-                    return Some((language, Some(region)));
-                }
+            if region.is_empty() {
+                return Some((language, None));
+            } else {
+                return Some((language, Some(region)));
             }
         }
 
         None
+    }
+
+    /// Get the appropriate language-region pair. If the region can not be matched, and there is no matched language-region pairs, returns the first matched language.
+    pub fn get_appropriate_language_region(&self, locales: &[Locale]) -> Option<(&str, Option<&str>)> {
+        let mut filtered_language = None;
+
+        for locale in &self.accept_language {
+            let language = locale.get_language();
+
+            for t_locale in locales {
+                let t_language = t_locale.get_language();
+
+                if language == t_language {
+                    let region = locale.get_region();
+                    let t_region = t_locale.get_region();
+
+                    if region == t_region {
+                        if region.is_empty() {
+                            return Some((language, None));
+                        } else {
+                            return Some((language, Some(region)));
+                        }
+                    } else {
+                        if filtered_language.is_none() {
+                            filtered_language = Some((language, None));
+                        }
+                    }
+                }
+            }
+        }
+
+        filtered_language
     }
 }
