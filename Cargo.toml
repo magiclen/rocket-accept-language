@@ -1,7 +1,8 @@
 [package]
 name = "rocket-accept-language"
-version = "0.4.1"
+version = "0.5.0"
 authors = ["Magic Len <len@magiclen.org>"]
+edition = "2018"
 repository = "https://github.com/magiclen/rocket-accept-language"
 homepage = "https://magiclen.org/rocket-accept-language"
 keywords = ["rocket", "server", "web", "i18n", "http"]
@@ -16,5 +17,5 @@ branch = "master"
 
 [dependencies]
 rocket = "0.4"
-accept-language = "2.0.0"
-fluent-locale = "0.4.1"
+accept-language = "2"
+unic-langid = "0.4"

@@ -3,25 +3,26 @@
 #[macro_use]
 extern crate rocket;
 
+#[macro_use]
 extern crate rocket_accept_language;
 
 use rocket::State;
 
-use rocket_accept_language::{AcceptLanguage, Locale};
+use rocket_accept_language::{AcceptLanguage, LanguageIdentifier};
 
 struct SupportLanguages {
-    locales: Vec<Locale>
+    language_identifiers: Vec<LanguageIdentifier>
 }
 
 impl SupportLanguages {
-    fn as_locales(&self) -> &[Locale] {
-        &self.locales
+    fn as_language_identifiers(&self) -> &[LanguageIdentifier] {
+        &self.language_identifiers
     }
 }
 
 #[get("/")]
 fn hello(accept_language: &AcceptLanguage, support_languages: State<SupportLanguages>) -> &'static str {
-    let (language, region) = accept_language.get_appropriate_language_region(support_languages.as_locales()).unwrap_or(("en", None));
+    let (language, region) = accept_language.get_appropriate_language_region(support_languages.as_language_identifiers()).unwrap_or(("en", None));
 
     match language {
         "zh" => match region.unwrap_or("") {
@@ -35,7 +36,12 @@ fn hello(accept_language: &AcceptLanguage, support_languages: State<SupportLangu
 
 fn main() {
     let support_languages = SupportLanguages {
-        locales: vec![Locale::new("zh_TW", None).unwrap(), Locale::new("zh_CN", None).unwrap(), Locale::new("jp", None).unwrap(), Locale::new("en", None).unwrap()]
+        language_identifiers: unchecked_language_region_pairs![
+            zh-TW,
+            zh-CN,
+            jp,
+            en,
+        ]
     };
 
     rocket::ignite()

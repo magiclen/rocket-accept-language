@@ -7,10 +7,13 @@ See `examples`.
 */
 
 pub extern crate rocket;
-pub extern crate fluent_locale;
+pub extern crate unic_langid;
 extern crate accept_language;
 
-pub use fluent_locale::Locale;
+mod macros;
+
+pub use unic_langid::LanguageIdentifier;
+use unic_langid::parser::parse_language_identifier;
 
 use rocket::Outcome;
 use rocket::request::{self, Request, FromRequest};
@@ -18,7 +21,7 @@ use rocket::request::{self, Request, FromRequest};
 /// The request guard used for getting `accept-language` header.
 #[derive(Debug, Clone)]
 pub struct AcceptLanguage {
-    pub accept_language: Vec<Locale>,
+    pub accept_language: Vec<LanguageIdentifier>,
 }
 
 macro_rules! impl_request_guard {
@@ -30,7 +33,7 @@ macro_rules! impl_request_guard {
                 Some(raw_accept_language) => {
                     let accept_language_split = accept_language::parse(raw_accept_language);
 
-                    let accept_language = accept_language_split.iter().filter_map(|al| Locale::new(al, None).ok()).collect();
+                    let accept_language = accept_language_split.iter().filter_map(|al| parse_language_identifier(al).ok()).collect();
 
                     AcceptLanguage {
                         accept_language
@@ -66,8 +69,8 @@ impl AcceptLanguage {
         for locale in &self.accept_language {
             let region = locale.get_region();
 
-            if !region.is_empty() {
-                return Some(region);
+            if region.is_some() {
+                return region;
             }
         }
 
@@ -86,18 +89,14 @@ impl AcceptLanguage {
 
             let region = locale.get_region();
 
-            if region.is_empty() {
-                return Some((language, None));
-            } else {
-                return Some((language, Some(region)));
-            }
+            return Some((language, region));
         }
 
         None
     }
 
     /// Get the appropriate language-region pair. If the region can not be matched, and there is no matched language-region pairs, returns the first matched language.
-    pub fn get_appropriate_language_region(&self, locales: &[Locale]) -> Option<(&str, Option<&str>)> {
+    pub fn get_appropriate_language_region(&self, locales: &[LanguageIdentifier]) -> Option<(&str, Option<&str>)> {
         let mut filtered_language = None;
 
         for locale in &self.accept_language {
@@ -111,11 +110,7 @@ impl AcceptLanguage {
                     let t_region = t_locale.get_region();
 
                     if region == t_region {
-                        if region.is_empty() {
-                            return Some((language, None));
-                        } else {
-                            return Some((language, Some(region)));
-                        }
+                        return Some((language, region));
                     } else {
                         if filtered_language.is_none() {
                             filtered_language = Some((language, None));
