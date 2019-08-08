@@ -2,7 +2,7 @@
 #[macro_export]
 macro_rules! language_identifiers_counter {
     () => (0usize);
-    ( $language:expr, $($languages:expr),* $(,)* ) => (1usize + language_identifiers_counter!($($languages,)*));
+    ( $language:expr, $($languages:expr),* $(,)* ) => (1usize + $crate::language_identifiers_counter!($($languages,)*));
 }
 
 #[doc(hidden)]
@@ -21,10 +21,10 @@ macro_rules! create_language_identifier {
 macro_rules! unchecked_language_region_pairs {
     ($($language:ident $(- $region:ident)?),* $(,)*) => {
         {
-            let mut v = Vec::with_capacity(language_identifiers_counter!($($language,)*));
+            let mut v = Vec::with_capacity($crate::language_identifiers_counter!($($language,)*));
 
             $(
-                v.push(create_language_identifier!($language $(, $region)?));
+                v.push($crate::create_language_identifier!($language $(, $region)?));
             )*
 
             v
