@@ -6,17 +6,18 @@ This crate provides a request guard used for getting `accept-language` header.
 See `examples`.
 */
 
-pub extern crate rocket;
-pub extern crate unic_langid;
 extern crate accept_language;
+pub extern crate rocket;
+pub extern crate tinystr;
+pub extern crate unic_langid;
 
 mod macros;
 
-pub use unic_langid::LanguageIdentifier;
 use unic_langid::parser::parse_language_identifier;
+pub use unic_langid::LanguageIdentifier;
 
+use rocket::request::{self, FromRequest, Request};
 use rocket::Outcome;
-use rocket::request::{self, Request, FromRequest};
 
 /// The request guard used for getting `accept-language` header.
 #[derive(Debug, Clone)]
@@ -84,19 +85,22 @@ impl AcceptLanguage {
 
     /// Get the first language-region pair. The region might not exist. For example, a language-region pair can be `("en", Some("US"))`, `("en", Some("GB"))`, `("zh", Some("TW"))` or `("zh", None)`.
     pub fn get_first_language_region(&self) -> Option<(&str, Option<&str>)> {
-        for locale in &self.accept_language {
+        if let Some(locale) = self.accept_language.iter().next() {
             let language = locale.get_language();
 
             let region = locale.get_region();
 
-            return Some((language, region));
+            Some((language, region))
+        } else {
+            None
         }
-
-        None
     }
 
     /// Get the appropriate language-region pair. If the region can not be matched, and there is no matched language-region pairs, returns the first matched language.
-    pub fn get_appropriate_language_region(&self, locales: &[LanguageIdentifier]) -> Option<(&str, Option<&str>)> {
+    pub fn get_appropriate_language_region(
+        &self,
+        locales: &[LanguageIdentifier],
+    ) -> Option<(&str, Option<&str>)> {
         let mut filtered_language = None;
 
         for locale in &self.accept_language {
@@ -111,10 +115,8 @@ impl AcceptLanguage {
 
                     if region == t_region {
                         return Some((language, region));
-                    } else {
-                        if filtered_language.is_none() {
-                            filtered_language = Some((language, None));
-                        }
+                    } else if filtered_language.is_none() {
+                        filtered_language = Some((language, None));
                     }
                 }
             }

@@ -11,7 +11,7 @@ use rocket::State;
 use rocket_accept_language::{AcceptLanguage, LanguageIdentifier};
 
 struct SupportLanguages {
-    language_identifiers: Vec<LanguageIdentifier>
+    language_identifiers: Vec<LanguageIdentifier>,
 }
 
 impl SupportLanguages {
@@ -21,31 +21,30 @@ impl SupportLanguages {
 }
 
 #[get("/")]
-fn hello(accept_language: &AcceptLanguage, support_languages: State<SupportLanguages>) -> &'static str {
-    let (language, region) = accept_language.get_appropriate_language_region(support_languages.as_language_identifiers()).unwrap_or(("en", None));
+fn hello(
+    accept_language: &AcceptLanguage,
+    support_languages: State<SupportLanguages>,
+) -> &'static str {
+    let (language, region) = accept_language
+        .get_appropriate_language_region(support_languages.as_language_identifiers())
+        .unwrap_or(("en", None));
 
     match language {
-        "zh" => match region.unwrap_or("") {
-            "CN" => "哈罗！",
-            _ => "哈囉！",
+        "zh" => {
+            match region.unwrap_or("") {
+                "CN" => "哈罗！",
+                _ => "哈囉！",
+            }
         }
         "jp" => "ハロー",
-        _ => "Hello!"
+        _ => "Hello!",
     }
 }
 
 fn main() {
     let support_languages = SupportLanguages {
-        language_identifiers: unchecked_language_region_pairs![
-            zh-TW,
-            zh-CN,
-            jp,
-            en,
-        ]
+        language_identifiers: unchecked_language_region_pairs![zh - TW, zh - CN, jp, en,],
     };
 
-    rocket::ignite()
-        .manage(support_languages)
-        .mount("/", routes![hello])
-        .launch();
+    rocket::ignite().manage(support_languages).mount("/", routes![hello]).launch();
 }

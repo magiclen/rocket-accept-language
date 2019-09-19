@@ -8,12 +8,30 @@ macro_rules! language_identifiers_counter {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! create_language_identifier {
-    ($language:ident $(,)*) => {
-        $crate::LanguageIdentifier::from_parts_unchecked(Some(stringify!($language)), None, None, None)
-    };
-    ($language:ident, $region:ident $(,)*) => {
-        $crate::LanguageIdentifier::from_parts_unchecked(Some(stringify!($language)), None, Some(stringify!($region)), None)
-    };
+    ($language:ident $(,)*) => {{
+        use $crate::tinystr::TinyStr8;
+
+        unsafe {
+            $crate::LanguageIdentifier::from_raw_parts_unchecked(
+                Some(stringify!($language).parse().unwrap()),
+                None,
+                None,
+                None,
+            )
+        }
+    }};
+    ($language:ident, $region:ident $(,)*) => {{
+        use $crate::tinystr::TinyStr8;
+
+        unsafe {
+            $crate::LanguageIdentifier::from_raw_parts_unchecked(
+                Some(stringify!($language).parse().unwrap()),
+                None,
+                Some(stringify!($region).parse().unwrap()),
+                None,
+            )
+        }
+    }};
 }
 
 /// This macro can be used to create a `Vec<LanguageIdentifier>` instance quickly by providing multiple `<language>[-<region>]` tokens separated by commas.
