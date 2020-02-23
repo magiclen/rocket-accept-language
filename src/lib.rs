@@ -34,7 +34,7 @@ macro_rules! impl_request_guard {
                 Some(raw_accept_language) => {
                     let accept_language_split = accept_language::parse(raw_accept_language);
 
-                    let accept_language = accept_language_split.iter().filter_map(|al| parse_language_identifier(al).ok()).collect();
+                    let accept_language = accept_language_split.iter().filter_map(|al| parse_language_identifier(al.as_bytes()).ok()).collect();
 
                     AcceptLanguage {
                         accept_language
@@ -68,7 +68,7 @@ impl AcceptLanguage {
     /// Get the first region. For example, a region can be `"US"`, `"TW"` or `"GB"`.
     pub fn get_first_region(&self) -> Option<&str> {
         for locale in &self.accept_language {
-            let region = locale.get_region();
+            let region = locale.region();
 
             if region.is_some() {
                 return region;
@@ -80,15 +80,15 @@ impl AcceptLanguage {
 
     /// Get the first language. For example, a language can be `"en"`, `"zh"` or `"jp"`.
     pub fn get_first_language(&self) -> Option<&str> {
-        self.accept_language.iter().next().map(|locale| locale.get_language())
+        self.accept_language.iter().next().map(|locale| locale.language())
     }
 
     /// Get the first language-region pair. The region might not exist. For example, a language-region pair can be `("en", Some("US"))`, `("en", Some("GB"))`, `("zh", Some("TW"))` or `("zh", None)`.
     pub fn get_first_language_region(&self) -> Option<(&str, Option<&str>)> {
         if let Some(locale) = self.accept_language.iter().next() {
-            let language = locale.get_language();
+            let language = locale.language();
 
-            let region = locale.get_region();
+            let region = locale.region();
 
             Some((language, region))
         } else {
@@ -104,14 +104,14 @@ impl AcceptLanguage {
         let mut filtered_language = None;
 
         for locale in &self.accept_language {
-            let language = locale.get_language();
+            let language = locale.language();
 
             for t_locale in locales {
-                let t_language = t_locale.get_language();
+                let t_language = t_locale.language();
 
                 if language == t_language {
-                    let region = locale.get_region();
-                    let t_region = t_locale.get_region();
+                    let region = locale.region();
+                    let t_region = t_locale.region();
 
                     if region == t_region {
                         return Some((language, region));
