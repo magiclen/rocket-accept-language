@@ -43,7 +43,7 @@ fn hello(
 
 fn main() {
     let support_languages = SupportLanguages {
-        language_identifiers: unchecked_language_region_pairs![zh - TW, zh - CN, jp, en,],
+        language_identifiers: language_region_pairs!["zh-TW", "zh_CN", "jp", "en"],
     };
 
     rocket::ignite().manage(support_languages).mount("/", routes![hello]).launch();

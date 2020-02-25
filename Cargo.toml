@@ -1,6 +1,6 @@
 [package]
 name = "rocket-accept-language"
-version = "0.5.3"
+version = "0.6.0"
 authors = ["Magic Len <len@magiclen.org>"]
 edition = "2018"
 repository = "https://github.com/magiclen/rocket-accept-language"
@@ -18,5 +18,5 @@ branch = "master"
 [dependencies]
 rocket = "0.4.2"
 accept-language = "2"
-unic-langid = "0.8"
+unic-langid = { version = "0.8", features = ["macros"] }
 tinystr = "0.3"
