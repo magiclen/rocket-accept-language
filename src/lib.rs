@@ -10,10 +10,12 @@ extern crate accept_language;
 pub extern crate rocket;
 pub extern crate tinystr;
 pub extern crate unic_langid;
+pub extern crate unic_langid_macros;
 
 mod macros;
 
 use unic_langid::parser::parse_language_identifier;
+use unic_langid::subtags::{Language, Region};
 pub use unic_langid::LanguageIdentifier;
 
 use rocket::request::{self, FromRequest, Request};
@@ -66,9 +68,9 @@ impl<'a, 'r> FromRequest<'a, 'r> for &'a AcceptLanguage {
 
 impl AcceptLanguage {
     /// Get the first region. For example, a region can be `"US"`, `"TW"` or `"GB"`.
-    pub fn get_first_region(&self) -> Option<&str> {
+    pub fn get_first_region(&self) -> Option<Region> {
         for locale in &self.accept_language {
-            let region = locale.region();
+            let region = locale.region;
 
             if region.is_some() {
                 return region;
@@ -79,16 +81,16 @@ impl AcceptLanguage {
     }
 
     /// Get the first language. For example, a language can be `"en"`, `"zh"` or `"jp"`.
-    pub fn get_first_language(&self) -> Option<&str> {
-        self.accept_language.iter().next().map(|locale| locale.language())
+    pub fn get_first_language(&self) -> Option<Language> {
+        self.accept_language.iter().next().map(|locale| locale.language)
     }
 
     /// Get the first language-region pair. The region might not exist. For example, a language-region pair can be `("en", Some("US"))`, `("en", Some("GB"))`, `("zh", Some("TW"))` or `("zh", None)`.
-    pub fn get_first_language_region(&self) -> Option<(&str, Option<&str>)> {
+    pub fn get_first_language_region(&self) -> Option<(Language, Option<Region>)> {
         if let Some(locale) = self.accept_language.iter().next() {
-            let language = locale.language();
+            let language = locale.language;
 
-            let region = locale.region();
+            let region = locale.region;
 
             Some((language, region))
         } else {
@@ -100,18 +102,18 @@ impl AcceptLanguage {
     pub fn get_appropriate_language_region(
         &self,
         locales: &[LanguageIdentifier],
-    ) -> Option<(&str, Option<&str>)> {
+    ) -> Option<(Language, Option<Region>)> {
         let mut filtered_language = None;
 
         for locale in &self.accept_language {
-            let language = locale.language();
+            let language = locale.language;
 
             for t_locale in locales {
-                let t_language = t_locale.language();
+                let t_language = t_locale.language;
 
                 if language == t_language {
-                    let region = locale.region();
-                    let t_region = t_locale.region();
+                    let region = locale.region;
+                    let t_region = t_locale.region;
 
                     if region == t_region {
                         return Some((language, region));

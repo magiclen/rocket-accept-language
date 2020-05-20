@@ -8,7 +8,14 @@ extern crate rocket_accept_language;
 
 use rocket::State;
 
+use rocket_accept_language::unic_langid::subtags::{Language, Region};
 use rocket_accept_language::{AcceptLanguage, LanguageIdentifier};
+
+const LANGUAGE_ZH: Language = language!("zh");
+const LANGUAGE_EN: Language = language!("en");
+const LANGUAGE_JP: Language = language!("jp");
+const REGION_CN: Region = region!("cn");
+const REGION_TW: Region = region!("tw");
 
 struct SupportLanguages {
     language_identifiers: Vec<LanguageIdentifier>,
@@ -27,16 +34,16 @@ fn hello(
 ) -> &'static str {
     let (language, region) = accept_language
         .get_appropriate_language_region(support_languages.as_language_identifiers())
-        .unwrap_or(("en", None));
+        .unwrap_or((LANGUAGE_EN, None));
 
     match language {
-        "zh" => {
-            match region.unwrap_or("") {
-                "CN" => "哈罗！",
+        LANGUAGE_ZH => {
+            match region.unwrap_or(REGION_TW) {
+                REGION_CN => "哈罗！",
                 _ => "哈囉！",
             }
         }
-        "jp" => "ハロー",
+        LANGUAGE_JP => "ハロー",
         _ => "Hello!",
     }
 }
