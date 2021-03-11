@@ -82,12 +82,12 @@ impl AcceptLanguage {
 
     /// Get the first language. For example, a language can be `"en"`, `"zh"` or `"jp"`.
     pub fn get_first_language(&self) -> Option<Language> {
-        self.accept_language.iter().next().map(|locale| locale.language)
+        self.accept_language.get(0).map(|locale| locale.language)
     }
 
     /// Get the first language-region pair. The region might not exist. For example, a language-region pair can be `("en", Some("US"))`, `("en", Some("GB"))`, `("zh", Some("TW"))` or `("zh", None)`.
     pub fn get_first_language_region(&self) -> Option<(Language, Option<Region>)> {
-        if let Some(locale) = self.accept_language.iter().next() {
+        if let Some(locale) = self.accept_language.get(0) {
             let language = locale.language;
 
             let region = locale.region;
