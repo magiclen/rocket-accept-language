@@ -18,8 +18,8 @@ use unic_langid::parser::parse_language_identifier;
 use unic_langid::subtags::{Language, Region};
 pub use unic_langid::LanguageIdentifier;
 
+use rocket::outcome::Outcome;
 use rocket::request::{self, FromRequest, Request};
-use rocket::Outcome;
 
 /// The request guard used for getting `accept-language` header.
 #[derive(Debug, Clone)]
@@ -50,18 +50,20 @@ macro_rules! impl_request_guard {
     }
 }
 
-impl<'a, 'r> FromRequest<'a, 'r> for AcceptLanguage {
+#[rocket::async_trait]
+impl<'r> FromRequest<'r> for AcceptLanguage {
     type Error = ();
 
-    fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
+    async fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
         Outcome::Success(impl_request_guard!(request))
     }
 }
 
-impl<'a, 'r> FromRequest<'a, 'r> for &'a AcceptLanguage {
+#[rocket::async_trait]
+impl<'r> FromRequest<'r> for &'r AcceptLanguage {
     type Error = ();
 
-    fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
+    async fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
         Outcome::Success(request.local_cache(|| impl_request_guard!(request)))
     }
 }

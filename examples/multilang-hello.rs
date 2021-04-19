@@ -1,5 +1,3 @@
-#![feature(proc_macro_hygiene, decl_macro)]
-
 #[macro_use]
 extern crate rocket;
 
@@ -48,10 +46,11 @@ fn hello(
     }
 }
 
-fn main() {
+#[launch]
+fn rocket() -> _ {
     let support_languages = SupportLanguages {
         language_identifiers: language_region_pairs!["zh-TW", "zh_CN", "jp", "en"],
     };
 
-    rocket::ignite().manage(support_languages).mount("/", routes![hello]).launch();
+    rocket::build().manage(support_languages).mount("/", routes![hello])
 }
