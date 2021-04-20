@@ -27,35 +27,25 @@ pub struct AcceptLanguage {
     pub accept_language: Vec<LanguageIdentifier>,
 }
 
-macro_rules! impl_request_guard {
-    ($request:ident) => {
-        {
-            let raw_accept_language: Option<&str> = $request.headers().get("accept-language").next(); // Only fetch the first one.
-
-            match raw_accept_language {
-                Some(raw_accept_language) => {
-                    let accept_language_split = accept_language::parse(raw_accept_language);
-
-                    let accept_language = accept_language_split.iter().filter_map(|al| parse_language_identifier(al.as_bytes()).ok()).collect();
-
-                    AcceptLanguage {
-                        accept_language
-                    }
-                }
-                None => AcceptLanguage {
-                    accept_language: Vec::new()
-                }
-            }
-        }
-    }
-}
-
 #[rocket::async_trait]
 impl<'r> FromRequest<'r> for AcceptLanguage {
     type Error = ();
 
     async fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
-        Outcome::Success(impl_request_guard!(request))
+        let raw_accept_language: Option<&str> = request.headers().get("accept-language").next(); // Only fetch the first one.
+
+        let accept_language = raw_accept_language
+            .map(|raw_accept_language| {
+                accept_language::parse(raw_accept_language)
+                    .iter()
+                    .filter_map(|al| parse_language_identifier(al.as_bytes()).ok())
+                    .collect()
+            })
+            .unwrap_or_else(Vec::new);
+
+        Outcome::Success(AcceptLanguage {
+            accept_language,
+        })
     }
 }
 
@@ -64,7 +54,22 @@ impl<'r> FromRequest<'r> for &'r AcceptLanguage {
     type Error = ();
 
     async fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
-        Outcome::Success(request.local_cache(|| impl_request_guard!(request)))
+        Outcome::Success(request.local_cache(|| {
+            let raw_accept_language: Option<&str> = request.headers().get("accept-language").next(); // Only fetch the first one.
+
+            let accept_language = raw_accept_language
+                .map(|raw_accept_language| {
+                    accept_language::parse(raw_accept_language)
+                        .iter()
+                        .filter_map(|al| parse_language_identifier(al.as_bytes()).ok())
+                        .collect()
+                })
+                .unwrap_or_else(Vec::new);
+
+            AcceptLanguage {
+                accept_language,
+            }
+        }))
     }
 }
 
