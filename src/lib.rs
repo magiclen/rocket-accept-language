@@ -27,25 +27,30 @@ pub struct AcceptLanguage {
     pub accept_language: Vec<LanguageIdentifier>,
 }
 
+#[inline]
+fn from_request(request: &Request<'_>) -> AcceptLanguage {
+    let raw_accept_language: Option<&str> = request.headers().get("accept-language").next(); // Only fetch the first one.
+
+    let accept_language = raw_accept_language
+        .map(|raw_accept_language| {
+            accept_language::parse(raw_accept_language)
+                .iter()
+                .filter_map(|al| parse_language_identifier(al.as_bytes()).ok())
+                .collect()
+        })
+        .unwrap_or_else(Vec::new);
+
+    AcceptLanguage {
+        accept_language,
+    }
+}
+
 #[rocket::async_trait]
 impl<'r> FromRequest<'r> for AcceptLanguage {
     type Error = ();
 
     async fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
-        let raw_accept_language: Option<&str> = request.headers().get("accept-language").next(); // Only fetch the first one.
-
-        let accept_language = raw_accept_language
-            .map(|raw_accept_language| {
-                accept_language::parse(raw_accept_language)
-                    .iter()
-                    .filter_map(|al| parse_language_identifier(al.as_bytes()).ok())
-                    .collect()
-            })
-            .unwrap_or_else(Vec::new);
-
-        Outcome::Success(AcceptLanguage {
-            accept_language,
-        })
+        Outcome::Success(from_request(request))
     }
 }
 
@@ -54,22 +59,7 @@ impl<'r> FromRequest<'r> for &'r AcceptLanguage {
     type Error = ();
 
     async fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
-        Outcome::Success(request.local_cache(|| {
-            let raw_accept_language: Option<&str> = request.headers().get("accept-language").next(); // Only fetch the first one.
-
-            let accept_language = raw_accept_language
-                .map(|raw_accept_language| {
-                    accept_language::parse(raw_accept_language)
-                        .iter()
-                        .filter_map(|al| parse_language_identifier(al.as_bytes()).ok())
-                        .collect()
-                })
-                .unwrap_or_else(Vec::new);
-
-            AcceptLanguage {
-                accept_language,
-            }
-        }))
+        Outcome::Success(request.local_cache(|| from_request(request)))
     }
 }
 
