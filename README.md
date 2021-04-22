@@ -1,7 +1,7 @@
 `accept-language` Request Guard for Rocket Framework
 ====================
 
-[![Build Status](https://travis-ci.org/magiclen/rocket-accept-language.svg?branch=master)](https://travis-ci.org/magiclen/rocket-accept-language)
+[![CI](https://github.com/magiclen/rocket-accept-language/actions/workflows/ci.yml/badge.svg)](https://github.com/magiclen/rocket-accept-language/actions/workflows/ci.yml)
 
 This crate provides a request guard used for getting `accept-language` header.
 
