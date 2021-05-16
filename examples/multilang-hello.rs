@@ -28,7 +28,7 @@ impl SupportLanguages {
 #[get("/")]
 fn hello(
     accept_language: &AcceptLanguage,
-    support_languages: State<SupportLanguages>,
+    support_languages: &State<SupportLanguages>,
 ) -> &'static str {
     let (language, region) = accept_language
         .get_appropriate_language_region(support_languages.as_language_identifiers())
