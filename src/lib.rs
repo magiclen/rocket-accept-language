@@ -6,7 +6,6 @@ This crate provides a request guard used for getting `accept-language` header.
 See `examples`.
 */
 
-extern crate accept_language;
 pub extern crate rocket;
 pub extern crate tinystr;
 pub extern crate unic_langid;
