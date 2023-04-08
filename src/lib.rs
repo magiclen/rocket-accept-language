@@ -13,12 +13,15 @@ pub extern crate unic_langid_macros;
 
 mod macros;
 
-use unic_langid::parser::parse_language_identifier;
-use unic_langid::subtags::{Language, Region};
+use rocket::{
+    outcome::Outcome,
+    request::{self, FromRequest, Request},
+};
 pub use unic_langid::LanguageIdentifier;
-
-use rocket::outcome::Outcome;
-use rocket::request::{self, FromRequest, Request};
+use unic_langid::{
+    parser::parse_language_identifier,
+    subtags::{Language, Region},
+};
 
 /// The request guard used for getting `accept-language` header.
 #[derive(Debug, Clone)]

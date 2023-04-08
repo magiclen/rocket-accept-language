@@ -5,9 +5,10 @@ extern crate rocket;
 extern crate rocket_accept_language;
 
 use rocket::State;
-
-use rocket_accept_language::unic_langid::subtags::{Language, Region};
-use rocket_accept_language::{AcceptLanguage, LanguageIdentifier};
+use rocket_accept_language::{
+    unic_langid::subtags::{Language, Region},
+    AcceptLanguage, LanguageIdentifier,
+};
 
 const LANGUAGE_ZH: Language = language!("zh");
 const LANGUAGE_EN: Language = language!("en");
@@ -35,12 +36,10 @@ fn hello(
         .unwrap_or((LANGUAGE_EN, None));
 
     match language {
-        LANGUAGE_ZH => {
-            match region.unwrap_or(REGION_TW) {
-                REGION_CN => "哈罗！",
-                _ => "哈囉！",
-            }
-        }
+        LANGUAGE_ZH => match region.unwrap_or(REGION_TW) {
+            REGION_CN => "哈罗！",
+            _ => "哈囉！",
+        },
         LANGUAGE_JP => "ハロー",
         _ => "Hello!",
     }

@@ -3,6 +3,7 @@ name = "rocket-accept-language"
 version = "0.8.2"
 authors = ["Magic Len <len@magiclen.org>"]
 edition = "2021"
+rust-version = "1.62"
 repository = "https://github.com/magiclen/rocket-accept-language"
 homepage = "https://magiclen.org/rocket-accept-language"
 keywords = ["rocket", "server", "web", "i18n", "http"]
@@ -13,7 +14,7 @@ license = "MIT"
 include = ["src/**/*", "Cargo.toml", "README.md", "LICENSE"]
 
 [dependencies]
-rocket = "0.5.0-rc.2"
+rocket = "0.5.0-rc.3"
 accept-language = "2"
 unic-langid = { version = "0.9", features = ["macros"] }
 unic-langid-macros = "0.9"
