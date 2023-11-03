@@ -40,7 +40,7 @@ fn from_request(request: &Request<'_>) -> AcceptLanguage {
                 .filter_map(|al| parse_language_identifier(al.as_bytes()).ok())
                 .collect()
         })
-        .unwrap_or_else(Vec::new);
+        .unwrap_or_default();
 
     AcceptLanguage {
         accept_language,
