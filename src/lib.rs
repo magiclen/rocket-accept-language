@@ -7,7 +7,6 @@ See `examples`.
 */
 
 pub extern crate rocket;
-pub extern crate tinystr;
 pub extern crate unic_langid;
 pub extern crate unic_langid_macros;
 
