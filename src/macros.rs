@@ -10,7 +10,7 @@ macro_rules! language_region_pairs {
 #[macro_export]
 macro_rules! language {
     ($id:expr) => {
-        $crate::unic_langid_macros::lang!($id)
+        $crate::unic_langid::lang!($id)
     };
 }
 
@@ -18,6 +18,6 @@ macro_rules! language {
 #[macro_export]
 macro_rules! region {
     ($id:expr) => {
-        $crate::unic_langid_macros::region!($id)
+        $crate::unic_langid::region!($id)
     };
 }
