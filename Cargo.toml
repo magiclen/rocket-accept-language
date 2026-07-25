@@ -2,8 +2,8 @@
 name = "rocket-accept-language"
 version = "0.8.6"
 authors = ["Magic Len <len@magiclen.org>"]
-edition = "2021"
-rust-version = "1.69"
+edition = "2024"
+rust-version = "1.88"
 repository = "https://github.com/magiclen/rocket-accept-language"
 homepage = "https://magiclen.org/rocket-accept-language"
 keywords = ["rocket", "server", "web", "i18n", "http"]
