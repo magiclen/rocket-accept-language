@@ -1,6 +1,6 @@
 [package]
 name = "rocket-accept-language"
-version = "0.8.6"
+version = "0.9.0"
 authors = ["Magic Len <len@magiclen.org>"]
 edition = "2024"
 rust-version = "1.88"
@@ -14,5 +14,4 @@ include = ["src/**/*", "Cargo.toml", "README.md", "LICENSE"]
 
 [dependencies]
 rocket = "0.5"
-accept-language = "3"
 unic-langid = { version = "0.9", features = ["macros"] }

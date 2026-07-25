@@ -3,27 +3,48 @@
 
 This crate provides a request guard used for getting `accept-language` header.
 
-See `examples`.
+```rust
+use rocket::get;
+use rocket_accept_language::{
+    language, language_region_pairs, unic_langid::subtags::Language, AcceptLanguage,
+    LanguageIdentifier,
+};
+
+const LANGUAGE_ZH: Language = language!("zh");
+const LANGUAGE_JA: Language = language!("ja");
+
+#[get("/")]
+fn hello(accept_language: &AcceptLanguage) -> &'static str {
+    let supported_locales: Vec<LanguageIdentifier> = language_region_pairs!["en", "zh-Hant", "ja"];
+
+    match accept_language.get_appropriate_locale(&supported_locales) {
+        Some(locale) if locale.language == LANGUAGE_ZH => "哈囉！",
+        Some(locale) if locale.language == LANGUAGE_JA => "ハロー",
+        _ => "Hello!",
+    }
+}
+```
 */
 
 pub extern crate rocket;
 pub extern crate unic_langid;
 
 mod macros;
+mod parser;
 
 use rocket::{
     outcome::Outcome,
     request::{self, FromRequest, Request},
 };
 pub use unic_langid::LanguageIdentifier;
-use unic_langid::{
-    parser::parse_language_identifier,
-    subtags::{Language, Region},
-};
+use unic_langid::subtags::{Language, Region};
+
+use crate::parser::parse_accept_language;
 
 /// The request guard used for getting `accept-language` header.
 #[derive(Debug, Clone)]
 pub struct AcceptLanguage {
+    /// The requested locales, ordered by descending quality.
     pub accept_language: Vec<LanguageIdentifier>,
 }
 
@@ -31,14 +52,7 @@ pub struct AcceptLanguage {
 fn from_request(request: &Request<'_>) -> AcceptLanguage {
     let raw_accept_language: Option<&str> = request.headers().get("accept-language").next(); // Only fetch the first one.
 
-    let accept_language = raw_accept_language
-        .map(|raw_accept_language| {
-            accept_language::parse(raw_accept_language)
-                .iter()
-                .filter_map(|al| parse_language_identifier(al.as_bytes()).ok())
-                .collect()
-        })
-        .unwrap_or_default();
+    let accept_language = raw_accept_language.map(parse_accept_language).unwrap_or_default();
 
     AcceptLanguage {
         accept_language,
@@ -77,7 +91,7 @@ impl AcceptLanguage {
         None
     }
 
-    /// Get the first language. For example, a language can be `"en"`, `"zh"` or `"jp"`.
+    /// Get the first language. For example, a language can be `"en"`, `"zh"` or `"ja"`.
     pub fn get_first_language(&self) -> Option<Language> {
         self.accept_language.first().map(|locale| locale.language)
     }
@@ -95,32 +109,49 @@ impl AcceptLanguage {
         }
     }
 
-    /// Get the appropriate language-region pair. If the region can not be matched, and there is no matched language-region pairs, returns the first matched language.
-    pub fn get_appropriate_language_region(
+    /// Get the most appropriate locale out of `locales`.
+    ///
+    /// Matching is attempted in tiers, and each tier scans the requested locales in order of preference. A tier only accepts an exact match on the subtags it compares: first `language`-`script`-`region`, then `language`-`script`, then `language`-`region`, and finally `language` alone.
+    pub fn get_appropriate_locale<'a>(
         &self,
-        locales: &[LanguageIdentifier],
-    ) -> Option<(Language, Option<Region>)> {
-        let mut filtered_language = None;
-
-        for locale in &self.accept_language {
-            let language = locale.language;
-
-            for t_locale in locales {
-                let t_language = t_locale.language;
-
-                if language == t_language {
-                    let region = locale.region;
-                    let t_region = t_locale.region;
-
-                    if region == t_region {
-                        return Some((language, region));
-                    } else if filtered_language.is_none() {
-                        filtered_language = Some((language, None));
+        locales: &'a [LanguageIdentifier],
+    ) -> Option<&'a LanguageIdentifier> {
+        // The `script` subtag is more significant than the `region` one, so it is given up later.
+        for (compare_script, compare_region) in
+            [(true, true), (true, false), (false, true), (false, false)]
+        {
+            for locale in &self.accept_language {
+                for t_locale in locales {
+                    if locale.language != t_locale.language {
+                        continue;
                     }
+
+                    if compare_script && locale.script != t_locale.script {
+                        continue;
+                    }
+
+                    if compare_region && locale.region != t_locale.region {
+                        continue;
+                    }
+
+                    return Some(t_locale);
                 }
             }
         }
 
-        filtered_language
+        None
+    }
+
+    /// Get the appropriate language-region pair. If the region can not be matched, and there is no matched language-region pairs, returns the first matched language.
+    #[deprecated(
+        since = "0.9.0",
+        note = "use `get_appropriate_locale` instead, which also takes the `script` subtag into \
+                account"
+    )]
+    pub fn get_appropriate_language_region(
+        &self,
+        locales: &[LanguageIdentifier],
+    ) -> Option<(Language, Option<Region>)> {
+        self.get_appropriate_locale(locales).map(|locale| (locale.language, locale.region))
     }
 }

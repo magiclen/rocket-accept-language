@@ -6,15 +6,13 @@ extern crate rocket_accept_language;
 
 use rocket::State;
 use rocket_accept_language::{
-    unic_langid::subtags::{Language, Region},
     AcceptLanguage, LanguageIdentifier,
+    unic_langid::subtags::{Language, Region},
 };
 
 const LANGUAGE_ZH: Language = language!("zh");
-const LANGUAGE_EN: Language = language!("en");
-const LANGUAGE_JP: Language = language!("jp");
+const LANGUAGE_JA: Language = language!("ja");
 const REGION_CN: Region = region!("cn");
-const REGION_TW: Region = region!("tw");
 
 struct SupportLanguages {
     language_identifiers: Vec<LanguageIdentifier>,
@@ -31,16 +29,15 @@ fn hello(
     accept_language: &AcceptLanguage,
     support_languages: &State<SupportLanguages>,
 ) -> &'static str {
-    let (language, region) = accept_language
-        .get_appropriate_language_region(support_languages.as_language_identifiers())
-        .unwrap_or((LANGUAGE_EN, None));
+    let locale =
+        accept_language.get_appropriate_locale(support_languages.as_language_identifiers());
 
-    match language {
-        LANGUAGE_ZH => match region.unwrap_or(REGION_TW) {
-            REGION_CN => "哈罗！",
+    match locale {
+        Some(locale) if locale.language == LANGUAGE_ZH => match locale.region {
+            Some(REGION_CN) => "哈罗！",
             _ => "哈囉！",
         },
-        LANGUAGE_JP => "ハロー",
+        Some(locale) if locale.language == LANGUAGE_JA => "ハロー",
         _ => "Hello!",
     }
 }
@@ -48,7 +45,7 @@ fn hello(
 #[launch]
 fn rocket() -> _ {
     let support_languages = SupportLanguages {
-        language_identifiers: language_region_pairs!["zh-TW", "zh_CN", "jp", "en"],
+        language_identifiers: language_region_pairs!["zh-TW", "zh_CN", "ja", "en"],
     };
 
     rocket::build().manage(support_languages).mount("/", routes![hello])

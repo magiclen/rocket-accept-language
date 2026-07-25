@@ -5,7 +5,27 @@
 
 This crate provides a request guard used for getting `accept-language` header.
 
-See `examples`.
+```rust
+use rocket::get;
+use rocket_accept_language::{
+    language, language_region_pairs, unic_langid::subtags::Language, AcceptLanguage,
+    LanguageIdentifier,
+};
+
+const LANGUAGE_ZH: Language = language!("zh");
+const LANGUAGE_JA: Language = language!("ja");
+
+#[get("/")]
+fn hello(accept_language: &AcceptLanguage) -> &'static str {
+    let supported_locales: Vec<LanguageIdentifier> = language_region_pairs!["en", "zh-Hant", "ja"];
+
+    match accept_language.get_appropriate_locale(&supported_locales) {
+        Some(locale) if locale.language == LANGUAGE_ZH => "哈囉！",
+        Some(locale) if locale.language == LANGUAGE_JA => "ハロー",
+        _ => "Hello!",
+    }
+}
+```
 
 ## Crates.io
 

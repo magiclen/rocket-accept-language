@@ -6,7 +6,7 @@ macro_rules! language_region_pairs {
     };
 }
 
-/// This macro can be used to create a `Language` instance constantly .
+/// This macro can be used to create a `Language` instance at compile time.
 #[macro_export]
 macro_rules! language {
     ($id:expr) => {
@@ -14,7 +14,7 @@ macro_rules! language {
     };
 }
 
-/// This macro can be used to create a `Region` instance constantly .
+/// This macro can be used to create a `Region` instance at compile time.
 #[macro_export]
 macro_rules! region {
     ($id:expr) => {
